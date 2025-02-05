@@ -7,11 +7,19 @@ const usernameInput = document.getElementById("username");
 let connections = []; // Liste des connexions avec les autres peers
 let myPeerId = ""; // ID du peer actuel
 
+// Demander l'autorisation d'envoyer des notifications
+if (Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
+
 // Afficher notre Peer ID
 peer.on("open", (id) => {
   console.log("Mon Peer ID :", id);
   myPeerId = id; // Sauvegarder notre Peer ID
   document.getElementById("peerId").textContent = id;
+
+  // Charger l'historique des messages depuis localStorage
+  loadChatHistory();
 });
 
 // Accepter les connexions entrantes
@@ -23,6 +31,13 @@ peer.on("connection", (connection) => {
   connection.on("data", (data) => {
     if (data.peerId !== myPeerId) {  // Ne pas afficher le message venant de soi-même
       addMessage(data.username, data.message);
+      // Afficher une notification pour le message reçu
+      if (Notification.permission === "granted") {
+        new Notification("Nouveau message", {
+          body: `${data.username}: ${data.message}`,
+          icon: 'icon.png'
+        });
+      }
     }
     // Répercuter le message aux autres connexions (sauf celui qui a envoyé)
     broadcastMessage(data); // Répéter le message à toutes les connexions
@@ -43,6 +58,13 @@ document.getElementById("connect").addEventListener("click", () => {
     conn.on("data", (data) => {
       if (data.peerId !== myPeerId) { // Ne pas afficher le message venant de soi-même
         addMessage(data.username, data.message);
+        // Afficher une notification pour le message reçu
+        if (Notification.permission === "granted") {
+          new Notification("Nouveau message", {
+            body: `${data.username}: ${data.message}`,
+            icon: 'icon.png'
+          });
+        }
       }
     });
   }
@@ -55,6 +77,9 @@ sendButton.addEventListener("click", () => {
   if (username && message) {
     const chatMessage = { username, message, peerId: myPeerId }; // Inclure le Peer ID dans le message
     addMessage(username, message);
+
+    // Sauvegarder le message dans localStorage
+    saveMessageToLocalStorage(chatMessage);
 
     // Si on est l'hôte (A), on répète le message à toutes les connexions
     if (connections.length > 0) {
@@ -81,5 +106,20 @@ function addMessage(username, message) {
 function broadcastMessage(message) {
   connections.forEach((conn) => {
     conn.send(message); // Envoie le message à chaque peer connecté
+  });
+}
+
+// Fonction pour sauvegarder un message dans localStorage
+function saveMessageToLocalStorage(message) {
+  let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+  chatHistory.push(message);
+  localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+// Fonction pour charger l'historique des messages depuis localStorage
+function loadChatHistory() {
+  const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+  chatHistory.forEach(msg => {
+    addMessage(msg.username, msg.message);
   });
 }
