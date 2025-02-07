@@ -3,9 +3,14 @@ const chat = document.getElementById("chat");
 const messageInput = document.getElementById("message");
 const sendButton = document.getElementById("send");
 const usernameInput = document.getElementById("username");
+const emojiButton = document.getElementById("emojiButton"); // Bouton emoji
+const emojiList = document.getElementById("emojiList"); // Liste des emojis
 
 let connections = []; // Liste des connexions avec les autres peers
 let myPeerId = ""; // ID du peer actuel
+
+// Liste d'emojis à utiliser
+const emojis = ["😀", "😁", "😂", "😃", "😄", "😅", "😆", "😉", "😊", "😍", "😋", "😜", "😎", "😜"];
 
 // Demander l'autorisation d'envoyer des notifications
 if (Notification.permission !== "granted") {
@@ -123,3 +128,20 @@ function loadChatHistory() {
     addMessage(msg.username, msg.message);
   });
 }
+
+// Afficher la liste des emojis quand on clique sur le bouton emoji
+emojiButton.addEventListener("click", () => {
+  emojiList.style.display = emojiList.style.display === "block" ? "none" : "block"; // Toggle la visibilité
+});
+
+// Ajouter un emoji au message
+emojis.forEach(emoji => {
+  const emojiItem = document.createElement("button");
+  emojiItem.textContent = emoji;
+  emojiItem.classList.add("emoji");
+  emojiItem.addEventListener("click", () => {
+    messageInput.value += emoji; // Ajouter l'emoji dans le champ de texte
+    emojiList.style.display = "none"; // Cacher la liste des emojis après sélection
+  });
+  emojiList.appendChild(emojiItem);
+});

@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat PeerJS</title>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <style>
+        /* Style pour la liste des emojis */
+        #emojiList {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .emoji {
+            font-size: 20px;
+            cursor: pointer;
+            margin: 2px;
+        }
+    </style>
 </head>
 <body>
 
@@ -34,6 +50,12 @@
             <input type="text" id="message" placeholder="Votre message">
             
             <button id="send">Envoyer</button>
+            
+            <!-- Bouton pour afficher les emojis -->
+            <button id="emojiButton">😊</button>
+            
+            <!-- Liste des emojis -->
+            <div id="emojiList"></div>
         </section>
     </main>
 
